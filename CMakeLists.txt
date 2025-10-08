@@ -12,11 +12,12 @@ find_package(Qt6 REQUIRED COMPONENTS Widgets)
 
 qt_standard_project_setup()
 
-add_executable(WeatherViewerQt
-        main.cpp
-        MapWindow.h
-        MapWindow.cpp
-        # Add more source files here
+add_executable(WeatherViewerQt 
+    main.cpp
+    MapWindow.cpp
+    MapWindow.h
+    LocationDialog.cpp
+    LocationDialog.h
 )
 
 target_link_libraries(WeatherViewerQt  PRIVATE

@@ -1,12 +1,61 @@
 #include "MapWindow.h"
+#include "LocationDialog.h"
 #include <QWebEngineView>
+#include <QMenuBar>
+#include <QMenu>
+#include <QAction>
 
 MapWindow::MapWindow(QWidget* parent)
     : QMainWindow(parent), webView(nullptr) {
+    setupMenuBar();
     setupUI();
 }
 
 MapWindow::~MapWindow() = default;
+
+void MapWindow::setupMenuBar() {
+    QMenuBar* menuBar = new QMenuBar(this);
+
+    // File menu
+    QMenu* fileMenu = menuBar->addMenu(tr("&File"));
+    QAction* exitAction = fileMenu->addAction(tr("E&xit"));
+    connect(exitAction, &QAction::triggered, this, &QWidget::close);
+
+    // Settings menu
+    QMenu* settingsMenu = menuBar->addMenu(tr("&Settings"));
+    QAction* locationAction = settingsMenu->addAction(tr("&Location..."));
+    connect(locationAction, &QAction::triggered, this, &MapWindow::openLocationDialog);
+
+    QAction* preferencesAction = settingsMenu->addAction(tr("&Preferences..."));
+    // TODO: Connect to preferences dialog
+
+    // Help menu
+    QMenu* helpMenu = menuBar->addMenu(tr("&Help"));
+    QAction* aboutAction = helpMenu->addAction(tr("&About..."));
+    // TODO: Connect to about dialog
+
+    setMenuBar(menuBar);
+}
+
+void MapWindow::openLocationDialog()
+{
+    LocationDialog* dialog = new LocationDialog(this);
+    connect(dialog, &LocationDialog::locationSelected, this,
+            [this](const QString& city, double latitude, double longitude) {
+                navigateToLocation(latitude, longitude);
+            });
+    dialog->exec();
+    dialog->deleteLater();
+}
+
+void MapWindow::navigateToLocation(double latitude, double longitude)
+{
+    QString script = QString(
+        "map.setView([%1, %2], 12);"
+    ).arg(latitude).arg(longitude);
+
+    webView->page()->runJavaScript(script);
+}
 
 void MapWindow::setupUI() {
     webView = new QWebEngineView(this);
