@@ -1,18 +1,12 @@
 #include <QApplication>
-#include <QMainWindow>
-#include <QLabel>
+#include "MapWindow.h"
 
 int main(int argc, char* argv[]) {
     QApplication app(argc, argv);
 
-    QMainWindow window;
+    MapWindow window;
     window.setWindowTitle("WeatherViewerQt");
-
-    auto* label = new QLabel("Hello from Qt!");
-    label->setAlignment(Qt::AlignCenter);
-    window.setCentralWidget(label);
-
-    window.resize(480, 320);
+    window.resize(800, 600);
     window.show();
 
     return app.exec();
