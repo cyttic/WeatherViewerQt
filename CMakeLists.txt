@@ -1,0 +1,21 @@
+cmake_minimum_required(VERSION 3.21)
+project(WeatherViewerQt LANGUAGES CXX)
+
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+# Point CMake to your Qt installation if needed:
+# cmake -S . -B build -DCMAKE_PREFIX_PATH="C:/Qt/6.7.2/msvc2022_64/lib/cmake"
+
+find_package(Qt6 REQUIRED COMPONENTS Widgets)
+
+qt_standard_project_setup()
+
+add_executable(WeatherViewerQt
+        main.cpp
+        # Add more source files here
+)
+
+target_link_libraries(WeatherViewerQt PRIVATE
+        Qt6::Widgets
+)
