@@ -1,45 +1,52 @@
-#pragma once
+#ifndef LOCATIONDIALOG_H
+#define LOCATIONDIALOG_H
+#endif
 
 #include <QDialog>
 #include <QString>
 #include <QPair>
 
-class QComboBox;
-class QPushButton;
 class QLineEdit;
+class QComboBox;
+class QLabel;
+class QPushButton;
 
-class LocationDialog : public QDialog {
+struct CityEntry {
+    QString name;
+    // coordinates removed
+};
+
+class LocationDialog : public QDialog
+{
     Q_OBJECT
 
 public:
     explicit LocationDialog(QWidget* parent = nullptr);
-    ~LocationDialog() override = default;
 
+    signals:
+        void locationSelected(const QString& cityName, double latitude, double longitude);
+
+public:
     QString getSelectedCity() const;
     QPair<double, double> getSelectedCoordinates() const;
-
-signals:
-    void locationSelected(const QString& city, double latitude, double longitude);
-
-private slots:
-    void onApplyClicked();
-    void onSearchTextChanged(const QString& text);
 
 private:
     void setupUI();
     void populateCities();
-    void updateCityList(const QString& filter = QString());
+    void updateCityList(const QString& filter = "");
+    void updateCoordinatesLabel(int index);
 
+private slots:
+    void onApplyClicked();
+    void onSearchTextChanged(const QString& text);
+    void onCityChanged(int index);
+
+private:
     QLineEdit* searchEdit;
     QComboBox* cityComboBox;
     QPushButton* applyButton;
     QPushButton* cancelButton;
+    QLabel* coordinatesLabel; // NEW: displays coordinates of the selected city
 
-    struct CityData {
-        QString name;
-        double latitude;
-        double longitude;
-    };
-
-    QVector<CityData> cities;
+    QVector<CityEntry> cities;
 };
