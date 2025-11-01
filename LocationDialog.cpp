@@ -2,6 +2,7 @@
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QComboBox>
+#include <QCompleter>
 #include <QPushButton>
 #include <QLabel>
 #include <QLineEdit>
@@ -39,6 +40,15 @@ void LocationDialog::setupUI()
     // City selection
     auto* cityLabel = new QLabel("Select City:", this);
     cityComboBox = new QComboBox(this);
+    cityComboBox->setEditable(true);
+    cityComboBox->setInsertPolicy(QComboBox::NoInsert);
+
+    // Set up completer for filtering
+    auto* completer = cityComboBox->completer();
+    completer->setCompletionMode(QCompleter::PopupCompletion);
+    completer->setCaseSensitivity(Qt::CaseInsensitive);
+    completer->setFilterMode(Qt::MatchContains);
+
     // NEW: coordinates display
     coordinatesLabel = new QLabel("Coordinates: ", this);
 
@@ -75,107 +85,7 @@ void LocationDialog::populateCities()
     const QString exeDir = QCoreApplication::applicationDirPath();
     const QString fsPath = exeDir + "/files/countries.json";
 
-    auto tryLoad = [&](const QString& path) -> bool {
-        QFile file(path);
-        if (!file.exists() || !file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-            return false;
-        }
 
-        const QByteArray data = file.readAll();
-        file.close();
-
-        QJsonParseError parseErr{};
-        QJsonDocument doc = QJsonDocument::fromJson(data, &parseErr);
-        if (parseErr.error != QJsonParseError::NoError) {
-            return false;
-        }
-
-        auto addCityName = [&](const QJsonValue& v) {
-            if (v.isString()) {
-                const QString s = v.toString().trimmed();
-                if (!s.isEmpty()) {
-                    cities.append(CityEntry{ s });
-                }
-            } else if (v.isObject()) {
-                const QJsonObject o = v.toObject();
-                QString name;
-                if (o.contains("name") && o["name"].isString()) name = o["name"].toString();
-                else if (o.contains("city") && o["city"].isString()) name = o["city"].toString();
-                else if (o.contains("title") && o["title"].isString()) name = o["title"].toString();
-                if (!name.isEmpty()) {
-                    cities.append(CityEntry{ name });
-                }
-            }
-        };
-
-        auto extractFromCountryObject = [&](const QJsonObject& countryObj) {
-            // If the country object has a "cities" array that can be strings or objects.
-            if (countryObj.contains("cities") && countryObj["cities"].isArray()) {
-                const QJsonArray arr = countryObj["cities"].toArray();
-                for (const QJsonValue& cityVal : arr) {
-                    addCityName(cityVal);
-                }
-            }
-        };
-
-        auto extractFromRootObject = [&](const QJsonObject& rootObj) {
-            // Top-level cities array (strings or objects)
-            if (rootObj.contains("cities") && rootObj["cities"].isArray()) {
-                const QJsonArray citiesArr = rootObj["cities"].toArray();
-                for (const QJsonValue& cityVal : citiesArr) {
-                    addCityName(cityVal);
-                }
-            }
-            // Countries array (each may contain a "cities" array)
-            if (rootObj.contains("countries") && rootObj["countries"].isArray()) {
-                const QJsonArray countriesArr = rootObj["countries"].toArray();
-                for (const QJsonValue& countryVal : countriesArr) {
-                    if (countryVal.isObject()) {
-                        extractFromCountryObject(countryVal.toObject());
-                    } else if (countryVal.isArray()) {
-                        // Some structures might have an array of cities directly
-                        for (const QJsonValue& cityVal : countryVal.toArray()) {
-                            addCityName(cityVal);
-                        }
-                    }
-                }
-            }
-        };
-
-        if (doc.isArray()) {
-            // Could be an array of city strings/objects or country objects with "cities"
-            const QJsonArray rootArr = doc.array();
-            for (const QJsonValue& item : rootArr) {
-                if (item.isObject()) {
-                    const QJsonObject obj = item.toObject();
-                    if (obj.contains("cities")) {
-                        extractFromCountryObject(obj);
-                    } else {
-                        addCityName(item);
-                    }
-                } else {
-                    addCityName(item);
-                }
-            }
-        } else if (doc.isObject()) {
-            extractFromRootObject(doc.object());
-        } else {
-            return false;
-        }
-
-        return !cities.isEmpty();
-    };
-
-    bool loaded = tryLoad(fsPath);
-    if (!loaded) {
-        loaded = tryLoad(":/files/countries.json");
-    }
-
-    updateCityList();
-    if (cityComboBox->count() > 0) {
-        cityComboBox->setCurrentIndex(0);
-        updateCoordinatesLabel(0);
-    }
 }
 
 
