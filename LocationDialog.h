@@ -35,6 +35,7 @@ private:
     void populateCities();
     void updateCityList(const QString& filter = "");
     void updateCoordinatesLabel(int index);
+    double parseDouble(const QString &text);
 
 private slots:
     void onApplyClicked();

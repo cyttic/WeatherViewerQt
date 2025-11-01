@@ -86,6 +86,49 @@ void LocationDialog::populateCities()
     const QString fsPath = exeDir + "/files/countries.json";
 
 
+    QFile file(exeDir + "/files/worldcities.csv");
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        qDebug() << "Cannot open file!";
+        return;
+    }
+
+    QTextStream in(&file);
+    bool firstLine = true;
+
+    while (!in.atEnd()) {
+        QString line = in.readLine();
+
+        // Skip header line if needed
+        if (firstLine) {
+            firstLine = false;
+            continue;
+        }
+
+        // Split by comma
+        QStringList fields = line.split(',');
+        //Agenda:
+        //"city","city_ascii","lat","lng","country","iso2","iso3","admin_name","capital","population","id"
+
+        if (fields.size() < 5) continue; // skip incomplete lines
+
+        QString name = fields[1];
+        double latitude = parseDouble(fields[2]);
+
+        double longitude = parseDouble(fields[3]);
+        QString country = fields[4];
+        QString id = fields[10];
+
+        qDebug() << id << name << country << latitude << longitude;
+    }
+
+    file.close();
+
+}
+
+double LocationDialog::parseDouble(const QString &text) {
+    QString t = text.trimmed();
+    t.remove('\"');           // remove quotes
+    return t.toDouble();
 }
 
 
