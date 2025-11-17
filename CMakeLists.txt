@@ -20,6 +20,8 @@ qt_add_executable(WeatherViewerQt
     LocationDialog.cpp
     LocationDialog.h
     resources.qrc
+        Country.cpp
+        Country.h
 )
 
 qt_add_resources(SOURCES resources.qrc)

@@ -5,16 +5,13 @@
 #include <QDialog>
 #include <QString>
 #include <QPair>
+#include "Country.h"
 
 class QLineEdit;
 class QComboBox;
 class QLabel;
 class QPushButton;
 
-struct CityEntry {
-    QString name;
-    // coordinates removed
-};
 
 class LocationDialog : public QDialog
 {
@@ -49,5 +46,5 @@ private:
     QPushButton* cancelButton;
     QLabel* coordinatesLabel; // NEW: displays coordinates of the selected city
 
-    QVector<CityEntry> cities;
+    QVector<Country> cities;
 };

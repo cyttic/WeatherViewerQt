@@ -14,6 +14,7 @@
 #include <QByteArray>
 #include <QDir>
 #include <QResource>
+#include <QStringListModel>
 
 LocationDialog::LocationDialog(QWidget* parent)
     : QDialog(parent)
@@ -95,6 +96,8 @@ void LocationDialog::populateCities()
     QTextStream in(&file);
     bool firstLine = true;
 
+    QStringListModel * model = new QStringListModel;
+
     while (!in.atEnd()) {
         QString line = in.readLine();
 
@@ -117,6 +120,8 @@ void LocationDialog::populateCities()
         double longitude = parseDouble(fields[3]);
         QString country = fields[4];
         QString id = fields[10];
+
+        cities.push_back(Country{name, country, latitude, longitude, id.toInt()});
 
         qDebug() << id << name << country << latitude << longitude;
     }
@@ -141,9 +146,9 @@ void LocationDialog::onApplyClicked()
     }
 
     // Find the city in the original list
-    for (const auto& city : cities) {
-        if (city.name == selectedCityName) {
-            emit locationSelected(city.name, 0.0, 0.0);
+    for ( auto& city : cities) {
+        if (city.getName() == selectedCityName) {
+            emit locationSelected(city.getName(), 0.0, 0.0);
             accept();
             return;
         }
@@ -165,9 +170,9 @@ void LocationDialog::updateCityList(const QString& filter)
 {
     cityComboBox->clear();
 
-    for (const auto& city : cities) {
-        if (filter.isEmpty() || city.name.contains(filter, Qt::CaseInsensitive)) {
-            cityComboBox->addItem(city.name);
+    for ( auto& city : cities) {
+        if (filter.isEmpty() || city.getName().contains(filter, Qt::CaseInsensitive)) {
+            cityComboBox->addItem(city.getName());
         }
     }
 
