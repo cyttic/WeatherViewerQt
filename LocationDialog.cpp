@@ -155,7 +155,7 @@ void LocationDialog::onApplyClicked()
     // Find the city in the original list
     for ( auto& city : cities) {
         if (city.getName() == selectedCityName) {
-            emit locationSelected(city.getName(), 0.0, 0.0);
+            emit locationSelected(city.getName(), city.getLat(), city.getLong());
             accept();
             return;
         }
