@@ -15,6 +15,7 @@
 #include <QDir>
 #include <QResource>
 #include <QStringListModel>
+#include <QSortFilterProxyModel>
 
 LocationDialog::LocationDialog(QWidget* parent)
     : QDialog(parent)
@@ -114,17 +115,23 @@ void LocationDialog::populateCities()
 
         if (fields.size() < 5) continue; // skip incomplete lines
 
-        QString name = fields[1];
+        QString name = QString(fields[1].begin()+1, fields[1].length()-2);
         double latitude = parseDouble(fields[2]);
 
         double longitude = parseDouble(fields[3]);
-        QString country = fields[4];
+        QString country = QString(fields[4].begin()+1, fields[4].length()-2);
         QString id = fields[10];
 
         cities.push_back(Country{name, country, latitude, longitude, id.toInt()});
+        model->setData(model->index(model->rowCount() - 1, 0), name, Qt::DisplayRole);
 
         qDebug() << id << name << country << latitude << longitude;
     }
+
+    QSortFilterProxyModel * proxy = new QSortFilterProxyModel;
+    proxy->setSourceModel(model);
+    cityComboBox->setModel(proxy);
+    cityComboBox->setCompleter(0);
 
     file.close();
 
@@ -168,6 +175,7 @@ QPair<double, double> LocationDialog::getSelectedCoordinates() const
 
 void LocationDialog::updateCityList(const QString& filter)
 {
+
     cityComboBox->clear();
 
     for ( auto& city : cities) {

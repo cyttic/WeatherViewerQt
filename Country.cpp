@@ -5,8 +5,8 @@
 #include "Country.h"
 
 Country::Country(const QString &countryCode, const QString &countryName, double lat, double lon, int id) {
-    this->country  = countryCode;
-    this->name = countryName;
+    this->country  = countryName;
+    this->name = countryCode;
     this->latitude = lat;
     this->longitude = lon;
     this->id = id;
